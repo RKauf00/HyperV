@@ -10,10 +10,13 @@ Name:          newVM.ps1
 
 Description:   Create and configure new virtual machine:
  
-                 1. Creates New VM
-                 2. Creates New VHD
-                 3. Attaches VHD
-                 4. Sets DVD ISO Path
+                 1. Creates new Generation 2 VM
+                 2. Creates new OS VHDX
+                 2. Optionally creates new data VHDX
+                 3. Attaches VHD(s)
+                 4. Sets DVD ISO path
+                 5. Sets NIC 1
+                 6. Optionally adds up to 2 additional NICs
 
 Environment:   On-prem Hyper-V
 
@@ -27,6 +30,7 @@ Usage:         .\newVM.ps1 `
                    -ISOPath <Path to ISO> `
                    -VHDSize_OS <##GB> `
                    -VHDLocation_OS <VHD Directory Path> `
+                   -Add_DataDisk <Boolean> `
                    -VHDSize_Data <##GB> `
                    -VHDLocation_Data <VHD Directory Path>
                    
@@ -38,6 +42,7 @@ Example:       .\newVM.ps1 `
                    -ISOPath 'C:\Temp\MyISO.iso' `
                    -VHDSize_OS 80GB `
                    -VHDLocation_OS "$((Get-VMHost).VirtualHardDiskPath)" `
+                   -Add_DataDisk $TRUE `
                    -VHDSize_Data 100GB `
                    -VHDLocation_Data "$((Get-VMHost).VirtualHardDiskPath)"
  
@@ -87,6 +92,9 @@ Date:          01/03/2019
 
         [Parameter(Mandatory=$TRUE)]
         [STRING] $VHDLocation_OS,
+
+        [Parameter(Mandatory=$FALSE)]
+        [BOOLEAN] $Add_DataDisk,
 
         [Parameter(Mandatory=$FALSE)]
         [INT64] $VHDSize_Data,
@@ -168,7 +176,7 @@ Date:          01/03/2019
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     <#
   --  Create and Attach New Data VHDX  --                                                                                                                                                                                                                                                                                                                                                                                                                                                            #>
 
-    if ($VHDLocation_Data -and $VHDSize_Data)
+    if ($Add_DataDisk -eq $TRUE)
     {
     
         New-VHD `
